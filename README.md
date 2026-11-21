@@ -6,8 +6,10 @@ Empaquetado como app nativa con **Tauri v2** (WebView del sistema + Rust).
 
 ## Descargar
 
-- **macOS (Apple Silicon / M1, M2, M3, M4)** → `RiverStrike_1.0.0_aarch64.dmg`
+- **macOS (Apple Silicon / M1, M2, M3, M4)** → `River Strike_1.0.0_aarch64.dmg`
   en [Releases](../../releases/latest).
+- **Cualquier navegador** → `dist/river-strike.html` (un solo archivo, sin
+  servidor ni instalación: doble clic y juega). Regenerar con `npm run html`.
 - Linux: `npm run build:linux` compila el binario nativo.
 - Windows: `npm run build` en Windows.
 

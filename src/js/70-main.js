@@ -35,6 +35,14 @@ function boot() {
     Game.hi = Math.max(Game.hi, Save.data.hi || 0);
   }).catch(() => {});
 
+  // asegurar foco del documento: en WKWebView sin foco no llegan los keydown
+  try {
+    document.body.setAttribute('tabindex', '-1');
+    document.body.style.outline = 'none';
+    document.body.focus();
+  } catch (e) { /* noop */ }
+  window.focus();
+
   window.addEventListener('resize', fit);
 
   requestAnimationFrame(frame);

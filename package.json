@@ -10,7 +10,8 @@
     "build:mac-arm": "tauri build --target aarch64-apple-darwin",
     "build:linux": "tauri build --no-bundle",
     "tauri": "tauri",
-    "sim": "node test/sim.cjs"
+    "sim": "node test/sim.cjs",
+    "html": "node scripts/build-html.cjs"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.9.1"
