@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0d1b30"/>
+      <stop offset="1" stop-color="#05080f"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0a3f6d"/>
+      <stop offset="0.5" stop-color="#1273bd"/>
+      <stop offset="1" stop-color="#073055"/>
+    </linearGradient>
+    <linearGradient id="land" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2f8a3c"/>
+      <stop offset="1" stop-color="#175722"/>
+    </linearGradient>
+    <clipPath id="badge">
+      <rect x="32" y="32" width="960" height="960" rx="215" ry="215"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#badge)">
+    <rect width="1024" height="1024" fill="url(#bg)"/>
+    <!-- tierra -->
+    <rect x="0" y="0" width="1024" height="1024" fill="url(#land)"/>
+    <!-- río serpenteante -->
+    <path d="M330 1024 C 300 840, 470 780, 470 620 C 470 470, 300 430, 320 290 C 336 180, 470 150, 452 60 L 610 60 C 640 180, 520 250, 540 340 C 560 440, 700 470, 690 640 C 680 800, 520 850, 560 1024 Z"
+          fill="url(#water)"/>
+    <!-- orillas claras -->
+    <path d="M330 1024 C 300 840, 470 780, 470 620 C 470 470, 300 430, 320 290 C 336 180, 470 150, 452 60"
+          fill="none" stroke="#c9ab6d" stroke-width="14" opacity="0.85"/>
+    <path d="M610 60 C 640 180, 520 250, 540 340 C 560 440, 700 470, 690 640 C 680 800, 520 850, 560 1024"
+          fill="none" stroke="#c9ab6d" stroke-width="14" opacity="0.85"/>
+
+    <!-- caza -->
+    <g transform="translate(500 560)">
+      <polygon points="0,-210 46,-120 46,60 -46,60 -46,-120" fill="#e8f4ff"/>
+      <polygon points="0,-210 20,-120 20,60 -20,60 -20,-120" fill="#9fd8ff"/>
+      <polygon points="0,-160 26,-100 26,-30 -26,-30 -26,-100" fill="#2b6ea8"/>
+      <!-- alas -->
+      <polygon points="-46,-40 -190,120 -190,160 -46,70" fill="#cfdcea"/>
+      <polygon points="46,-40 190,120 190,160 46,70" fill="#cfdcea"/>
+      <polygon points="-190,120 -190,160 -60,150" fill="#8d9cb0"/>
+      <polygon points="190,120 190,160 60,150" fill="#8d9cb0"/>
+      <!-- llamas -->
+      <polygon points="-34,60 34,60 0,190" fill="#ff8a1e"/>
+      <polygon points="-18,60 18,60 0,140" fill="#ffe066"/>
+    </g>
+
+    <!-- brillo -->
+    <ellipse cx="500" cy="430" rx="360" ry="360" fill="#3fa8ff" opacity="0.10"/>
+  </g>
+
+  <rect x="32" y="32" width="960" height="960" rx="215" ry="215" fill="none" stroke="#2a4a70" stroke-width="10" opacity="0.9"/>
+</svg>

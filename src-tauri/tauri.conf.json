@@ -1,0 +1,49 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "River Strike",
+  "version": "1.0.0",
+  "identifier": "com.akumugames.riverstrike",
+  "build": {
+    "frontendDist": "../src"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "label": "main",
+        "title": "RIVER STRIKE",
+        "width": 640,
+        "height": 860,
+        "minWidth": 420,
+        "minHeight": 600,
+        "resizable": true,
+        "center": true,
+        "fullscreen": false,
+        "dragDropEnabled": false,
+        "backgroundColor": "#04060C",
+        "zoomHotkeysEnabled": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "copyright": "© 2026 AKUMU GAMES",
+    "category": "Game",
+    "shortDescription": "RIVER STRIKE — arcade de río",
+    "longDescription": "Shooter vertical de río estilo arcade de 8 bits. Combos, combustible, calor y puentes que explotan. Por AKUMU GAMES.",
+    "macOS": {
+      "minimumSystemVersion": "10.13"
+    }
+  }
+}
