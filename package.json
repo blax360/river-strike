@@ -1,7 +1,7 @@
 {
   "name": "river-strike",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "RIVER STRIKE — arcade vertical de río por AKUMU GAMES",
   "type": "module",
   "scripts": {

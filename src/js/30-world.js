@@ -139,8 +139,8 @@ function terrainHit() {
   for (let i = i0; i <= i1; i++) {
     const row = terrain.get(i);
     if (!row) continue;
-    if (Game.px - 12 < row.l + 4 || Game.px + 12 > row.r - 4) return 'bank';
-    if (row.il >= 0 && Game.px + 11 > row.il && Game.px - 11 < row.ir) return 'bank';
+    if (Game.px - 10 < row.l + 2 || Game.px + 10 > row.r - 2) return 'bank';
+    if (row.il >= 0 && Game.px + 9 > row.il && Game.px - 9 < row.ir) return 'bank';
     if (row.bridge && Game.px + 10 > row.bl && Game.px - 10 < row.br) return 'bridge';
   }
   return null;

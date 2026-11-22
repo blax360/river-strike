@@ -112,12 +112,20 @@ function update(dt) {
   Game.worldY += Game.speed * dt;
   ensureTerrain();
 
+  // El TECLADO manda: si hay una dirección pulsada, el puntero se ignora.
+  // Así una pulsación de ratón/trackpad atascada no puede bloquear los controles.
+  let kx = 0;
+  if (keys['ArrowLeft'] || keys['a'] || keys['A']) kx -= 1;
+  if (keys['ArrowRight'] || keys['d'] || keys['D']) kx += 1;
   let vx = 0;
-  if (keys['ArrowLeft'] || keys['a'] || keys['A']) vx -= 205;
-  if (keys['ArrowRight'] || keys['d'] || keys['D']) vx += 205;
-  if (ptr.down && ptr.x != null) vx = clamp((ptr.x - Game.px) * 9, -260, 260);
-  Game.px = clamp(Game.px + vx * dt, 18, W - 18);
-  Game.ptilt += ((vx / 210) * 0.30 - Game.ptilt) * Math.min(1, dt * 11);
+  if (kx) {
+    vx = kx * 270;
+  } else if (ptr.down && ptr.x != null && isFinite(ptr.x)) {
+    vx = clamp((ptr.x - Game.px) * 11, -300, 300);
+  }
+  Game.px = clamp(Game.px + vx * dt, 12, W - 12);
+  if (!isFinite(Game.px)) { Game.px = W / 2; ptr.down = false; ptr.x = null; }  // autocuración
+  Game.ptilt += ((vx / 270) * 0.32 - Game.ptilt) * Math.min(1, dt * 12);
 
   if (Audio2.ready) engineSet(true, Game.throttle);
 

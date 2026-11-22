@@ -98,31 +98,58 @@ window.addEventListener('blur', () => {
 
 function canvasX(e) {
   const r = cvs.getBoundingClientRect();
-  return ((e.clientX - r.left) / Math.max(1, r.width)) * W;
+  let cx = e.clientX;
+  if (cx === undefined || cx === null) {
+    if (e.touches && e.touches[0]) cx = e.touches[0].clientX;
+    else if (e.changedTouches && e.changedTouches[0]) cx = e.changedTouches[0].clientX;
+    else return null;
+  }
+  const x = ((cx - r.left) / Math.max(1, r.width)) * W;
+  return isFinite(x) ? x : null;      // nunca dejamos un NaN entrar al juego
 }
+function clearPointer() { ptr.down = false; ptr.x = null; }
+
 function onDown(e) {
   audioInit();
   if (Game.state === S.SPLASH) { Game.skipSplash = true; return; }
   if (Game.state === S.TITLE) { startGame(); return; }
   if (Game.state === S.OVER) { if (Game.stateT > 0.65) startGame(); return; }
   if (Game.state === S.PAUSE) { Game.state = S.PLAY; Game.stateT = 0; engineSet(true, Game.throttle); musicStart(); return; }
+  const x = canvasX(e);
+  if (x === null) return;
   ptr.down = true;
-  ptr.x = canvasX(e);
+  ptr.x = x;
   if (e.pointerType === 'touch' || e.pointerType === 'pen') ptr.touched = true;
   e.preventDefault();
 }
 cvs = document.getElementById('game');
 if (cvs) {
   cvs.addEventListener('pointerdown', onDown);
-  cvs.addEventListener('pointermove', e => { if (ptr.down) ptr.x = canvasX(e); });
+  cvs.addEventListener('pointermove', e => {
+    if (!ptr.down) return;
+    if (e.buttons === 0) { clearPointer(); return; }   // el botón ya se soltó fuera
+    const x = canvasX(e);
+    if (x !== null) ptr.x = x;
+  });
+  cvs.addEventListener('pointerleave', () => { if (ptr.down) clearPointer(); });
   cvs.addEventListener('contextmenu', e => e.preventDefault());
 }
-window.addEventListener('pointerup', () => { ptr.down = false; ptr.x = null; });
-window.addEventListener('pointercancel', () => { ptr.down = false; ptr.x = null; });
+// redes de seguridad: cualquier final de pulsación, en cualquier sitio, libera el puntero
+['pointerup', 'pointercancel', 'mouseup', 'touchend', 'touchcancel'].forEach(ev =>
+  window.addEventListener(ev, clearPointer, { passive: true }));
+window.addEventListener('blur', clearPointer);
 
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden && Game.state === S.PLAY) {
-    Game.state = S.PAUSE; Game.stateT = 0; engineSet(false, 1);
+  if (document.hidden) {
+    for (const k in keys) keys[k] = false;
+    clearPointer();
+    if (Game.state === S.PLAY) {
+      Game.state = S.PAUSE; Game.stateT = 0; engineSet(false, 1); musicStop();
+    }
+  } else {
+    // al volver, el keyup pudo perderse: partimos de cero
+    for (const k in keys) keys[k] = false;
+    clearPointer();
   }
 });
 
