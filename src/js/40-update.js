@@ -48,6 +48,7 @@ function update(dt) {
   if (Game.shakeT > 0) Game.shakeT = Math.max(0, Game.shakeT - dt);
   if (Game.flash > 0) Game.flash = Math.max(0, Game.flash - dt * 2.6);
   updateParticles(dt);
+  musicTick();   // la música suena en todos los estados (título, juego, game over)
 
   const st = Game.state;
 
