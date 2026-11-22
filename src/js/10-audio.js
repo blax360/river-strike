@@ -46,7 +46,7 @@ function audioInit() {
   comp.connect(ac.destination);
 
   Audio2.sfx = ac.createGain(); Audio2.sfx.gain.value = 0.95; Audio2.sfx.connect(Audio2.master);
-  Audio2.mus = ac.createGain(); Audio2.mus.gain.value = 0.36; Audio2.mus.connect(Audio2.master);
+  Audio2.mus = ac.createGain(); Audio2.mus.gain.value = 0.50; Audio2.mus.connect(Audio2.master);
 
   // delay para dar aire a la música
   const dly = ac.createDelay(0.6);
@@ -264,12 +264,12 @@ function musicTick() {
 
     // melodía
     const m = mel[s];
-    if (m) note(m, spb * 1.75, 'square', title ? 0.05 : 0.055, when, Audio2.mus, 0.004, 0.32);
+    if (m) note(m, spb * 1.75, 'square', title ? 0.055 : 0.062, when, Audio2.mus, 0.004, 0.32);
 
     // bajo (corcheas con salto de octava)
     if (s % 2 === 0) {
       const alt = (s % 8 === 4) ? 12 : 0;
-      note(p.root + alt, spb * 1.65, 'triangle', 0.155, when, Audio2.mus, 0, 0.04);
+      note(p.root + alt, spb * 1.65, 'triangle', 0.17, when, Audio2.mus, 0, 0.04);
     }
 
     // arpegio al subir la intensidad
