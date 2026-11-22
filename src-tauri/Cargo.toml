@@ -1,6 +1,6 @@
 [package]
 name = "river-strike"
-version = "1.0.1"
+version = "1.1.0"
 description = "RIVER STRIKE — arcade vertical de río por AKUMU GAMES"
 authors = ["AKUMU GAMES"]
 edition = "2021"

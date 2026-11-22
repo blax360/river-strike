@@ -317,12 +317,14 @@ function draw() {
   ctx.translate(Math.round(ox), Math.round(oy));
   drawWorld();
   drawEnemies();
+  drawPowerups();
   drawBullets();
   if (Game.state === S.PLAY || Game.state === S.PAUSE) drawPlayer();
   drawParticles();
   ctx.restore();
 
   drawHUD();
+  drawPowerHUD();
   drawBanner();
   if (Game.state === S.OVER) drawOver();
   if (Game.state === S.PAUSE) drawPause();

@@ -15,8 +15,17 @@ const Game = {
   flash: 0, flashCol: '#ffffff',
   px: W / 2, ptilt: 0, newHi: false, nextLife: 10000,
   runT: 0, lowBeep: 0, refBlip: 0, warnT: 0, introT: 0,
-  rank: 0, fuelWarn: 0
+  rank: 0, fuelWarn: 0,
+  pw: { double: 0, shield: 0, x2: 0 }, pwLast: null
 };
+
+/* ------------------------------------------------------------- power-ups */
+const PWTYPES = {
+  double: { label: 'D', name: 'DOBLE', col: '#8fe3ff', dur: 11 },
+  shield: { label: 'E', name: 'ESCUDO', col: '#8dffb9', dur: 2.6 },
+  x2:     { label: 'X', name: 'PUNTOS x2', col: '#ffd76a', dur: 9 }
+};
+const pwActive = k => (Game.pw[k] || 0) > 0;
 
 const PY = HUD_TOP + PLAY_H * 0.74;
 const AHEAD = PY - HUD_TOP;          // mundo visible por delante
@@ -24,7 +33,7 @@ const BEHIND = H - HUD_BOT - PY;     // mundo visible por detrás
 
 let terrain = new Map();
 let gen = null;
-let enemies = [], bullets = [], particles = [];
+let enemies = [], bullets = [], particles = [], powerups = [];
 
 /* --------------------------------------------------------------- terreno */
 function waterSegs(row) {
@@ -36,7 +45,8 @@ function rowAt(wy) { return terrain.get(Math.floor(wy / ROW_H)); }
 
 function resetTerrain() {
   terrain = new Map();
-  enemies = []; bullets = []; particles = [];
+  enemies = []; bullets = []; particles = []; powerups = [];
+  Game.pw = { double: 0, shield: 0, x2: 0 };
   gen = {
     i: -40,
     l: W * 0.19, r: W * 0.81, tl: W * 0.19, tr: W * 0.81,
@@ -146,6 +156,26 @@ function terrainHit() {
   return null;
 }
 
+function spawnPowerup(x, wy, forceType) {
+  if (powerups.length > 6) return;
+  const r = Math.random();
+  const type = forceType || (r < 0.40 ? 'double' : r < 0.72 ? 'x2' : 'shield');
+  powerups.push({ x: clamp(x, 26, W - 26), wy, type, t: 0, life: 12, bob: rand(0, 6) });
+}
+
+function grantPowerup(type, x, y) {
+  const def = PWTYPES[type];
+  Game.pw[type] = Math.max(Game.pw[type] || 0, def.dur);
+  Game.pwLast = type;
+  sfx[type === 'shield' ? 'shield' : type === 'x2' ? 'x2' : 'power']();
+  floatText(x, y - 16, def.name, def.col, 2);
+  for (let i = 0; i < 14; i++) {
+    part({ t: 'p', x, y, vx: rand(-90, 90), vy: rand(-110, 40), g: 120,
+      r: rand(1.6, 3), life: rand(0.25, 0.5), max: 0.5, c: type === 'shield' ? '140,255,185' : type === 'x2' ? '255,220,110' : '150,225,255' });
+  }
+  part({ t: 'ring', x, y, r: 8, dr: 120, life: 0.35, max: 0.35, c: '200,240,255' });
+}
+
 /* ------------------------------------------------------------ partículas */
 function part(p) { if (particles.length < 520) particles.push(p); }
 
@@ -191,7 +221,7 @@ function updateParticles(dt) {
 
 /* --------------------------------------------------------------- combate */
 function addScore(n, x, y, col) {
-  const pts = Math.max(1, Math.round(n));
+  const pts = Math.max(1, Math.round(pwActive('x2') ? n * 2 : n));
   Game.score += pts;
   if (x !== undefined) floatText(x, y, '+' + pts, col || '#ffe36a', 2);
   const nr = rankFor(Game.score);
@@ -223,9 +253,16 @@ const comboMult = () => clamp(Math.max(1, Game.combo), 1, 8);
 const COMBO_COLORS = ['#ffffff', '#8fe3ff', '#7dffb0', '#ffe36a', '#ffab5a', '#ff7a7a', '#ff5ad0', '#c78bff'];
 
 function fire() {
-  if (Game.overheat > 0 || Game.fireCd > 0 || bullets.length >= 4) return;
-  bullets.push({ x: Game.px, wy: Game.worldY + 17, vx: 0 });
-  Game.fireCd = 0.135;
+  const doble = pwActive('double');
+  if (Game.overheat > 0 || Game.fireCd > 0) return;
+  if (bullets.length >= (doble ? 6 : 4)) return;
+  if (doble) {
+    bullets.push({ x: Game.px - 8, wy: Game.worldY + 17, vx: -55 });
+    bullets.push({ x: Game.px + 8, wy: Game.worldY + 17, vx: 55 });
+  } else {
+    bullets.push({ x: Game.px, wy: Game.worldY + 17, vx: 0 });
+  }
+  Game.fireCd = doble ? 0.16 : 0.135;
   Game.shots++;
   Game.heat = Math.min(100, Game.heat + 13);
   if (Game.heat >= 100) {
@@ -233,7 +270,7 @@ function fire() {
     sfx.overheat();
     floatText(Game.px, PY - 34, 'CALOR', '#ff7a5a', 2);
   }
-  sfx.shoot();
+  if (doble) sfx.shoot2(); else sfx.shoot();
   part({ t: 'p', x: Game.px, y: PY - 17, vx: rand(-16, 16), vy: -40, g: 0, r: 2.6, life: 0.1, max: 0.1, c: '255,235,150' });
 }
 
@@ -260,7 +297,8 @@ function destroyBridge(i) {
   Game.bannerSub = 'RÍO MÁS RÁPIDO';
   Game.bannerT = 1.6;
   sfx.sector();
-  Audio2.intensity = Game.sector >= 4 ? 2 : Game.sector >= 2 ? 1 : 0;
+  musicIntensity(Game.sector >= 4 ? 2 : Game.sector >= 2 ? 1 : 0);
+  if (Game.sector >= 2) musicSection(Game.sector % 2);
 }
 
 function die(reason) {

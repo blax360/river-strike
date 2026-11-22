@@ -35,6 +35,21 @@ Empaquetado como app nativa con **Tauri v2** (WebView del sistema + Rust).
 
 Ratón/trackpad: mantén pulsado para mover y disparar.
 
+## Poderes
+
+Los **misiles** que caen sueltan cápsulas al destruirlos (65%). También hay
+drops raros de cazas (14%) y del resto (7%):
+
+| Cápsula | Poder | Duración |
+|---|---|---|
+| **D** | Disparo doble (dos balas en abanico) | 11 s |
+| **E** | Escudo: inmunidad total mientras dure | 2,6 s |
+| **X** | Puntos ×2 (se multiplica con el combo) | 9 s |
+
+Los poderes son acumulables entre sí, pero no se suman si repites el mismo:
+recoger otro del mismo tipo reinicia su reloj. Nada de invencibilidad
+permanente ni de armas rotas: son ayudas cortas que premian el riesgo.
+
 ## Cómo se juega
 
 - Vuelas sobre los **bidones verdes** para reabastecer combustible.
@@ -75,6 +90,7 @@ test/sim.cjs        simulador headless con bot para balance y regresiones
 - Canvas 2D a 540×800 lógicos, `devicePixelRatio` limitado a 2.
 - Sprites y textos pixel pre-renderizados en caché (una sola vez).
 - Sin asignaciones por frame en los bucles calientes; pool de partículas acotado.
+- Audio 100% sintetizado en un solo hilo de trabajo: 4 pistas + compresor + delay.
 - 60 fps estables en un MacBook Air M1 (y ~16.7 ms/frame incluso en WebView
   con render por software).
 

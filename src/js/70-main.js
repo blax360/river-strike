@@ -82,7 +82,7 @@ window.addEventListener('keydown', e => {
   if (k === 'Escape') {
     if (Game.state === S.PLAY) { Game.state = S.PAUSE; Game.stateT = 0; engineSet(false, 1); musicStop(); }
     else if (Game.state === S.PAUSE) { startGame(); }
-    else if (Game.state === S.OVER) { Game.state = S.TITLE; Game.stateT = 0; }
+    else if (Game.state === S.OVER) { Game.state = S.TITLE; Game.stateT = 0; musicReset(); musicTitle(); }
     return;
   }
   if (k === ' ' || k === 'Enter') startOrSkip();

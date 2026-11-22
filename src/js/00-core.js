@@ -25,7 +25,7 @@ const pad6 = n => String(Math.max(0, Math.floor(n))).padStart(6, '0');
 const SAVE_KEY = 'riverstrike.save.v2';
 const TAURI = (typeof window !== 'undefined' && window.__TAURI__ && window.__TAURI__.core)
   ? window.__TAURI__.core : null;
-const APP_VERSION = '1.0.1';
+const APP_VERSION = '1.1.0';
 
 const DEFAULT_SAVE = {
   hi: 0, bestSector: 1, bestCombo: 0, runs: 0, kills: 0, mute: false,

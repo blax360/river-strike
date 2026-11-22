@@ -52,9 +52,10 @@ function update(dt) {
   const st = Game.state;
 
   if (st === S.SPLASH) {
+    if (!Game.splashSfx && Game.stateT > 0.12) { Game.splashSfx = true; audioSting(); }
     if (Game.stateT > 2.9 || Game.skipSplash) {
       Game.state = S.TITLE; Game.stateT = 0;
-      musicReset(); musicStart();
+      musicReset(); musicTitle();
     }
     return;
   }
@@ -103,6 +104,7 @@ function update(dt) {
   Game.fireCd = Math.max(0, Game.fireCd - dt);
   Game.invuln = Math.max(0, Game.invuln - dt);
   Game.warnT = Math.max(0, Game.warnT - dt);
+  for (const k in Game.pw) if (Game.pw[k] > 0) Game.pw[k] = Math.max(0, Game.pw[k] - dt);
 
   // controles
   if (keys['ArrowUp'] || keys['w'] || keys['W']) Game.throttle = clamp(Game.throttle + 1.15 * dt, 0.55, 1.9);
@@ -159,6 +161,19 @@ function update(dt) {
     }
   }
 
+  // power-ups a la deriva
+  const shielded = pwActive('shield');
+  for (let i = powerups.length - 1; i >= 0; i--) {
+    const p = powerups[i];
+    p.t += dt;
+    p.wy -= 46 * dt;
+    if (p.t > p.life || p.wy < Game.worldY - BEHIND - 80) { powerups.splice(i, 1); continue; }
+    if (Math.abs(p.x - Game.px) < 27 && Math.abs(p.wy - Game.worldY) < 27) {
+      grantPowerup(p.type, p.x, PY + Game.worldY - p.wy);
+      powerups.splice(i, 1);
+    }
+  }
+
   // aviso de combustible
   if (Game.fuel < 25) {
     Game.lowBeep -= dt;
@@ -185,8 +200,16 @@ function update(dt) {
   }
   Game.fuelWarn = Math.max(0, Game.fuelWarn - dt);
 
-  // colisiones contra el terreno
-  if (Game.invuln <= 0) {
+  // colisiones contra el terreno (el escudo las absorbe)
+  if (shielded && Game.invuln <= 0) {
+    const hitS = terrainHit();
+    if (hitS && Game.warnT <= 0) {
+      Game.warnT = 0.25;
+      shake(0.12, 3);
+      part({ t: 'ring', x: Game.px, y: PY, r: 12, dr: 200, life: 0.25, max: 0.25, c: '140,255,185' });
+    }
+  }
+  if (Game.invuln <= 0 && !shielded) {
     const hit = terrainHit();
     if (hit) { die(hit === 'bridge' ? 'PUENTE' : 'ORILLA'); return; }
   }
@@ -195,7 +218,7 @@ function update(dt) {
   updateBullets(dt);
 
   // colisión con enemigos
-  if (Game.invuln <= 0 && Game.state === S.PLAY) {
+  if (Game.invuln <= 0 && !shielded && Game.state === S.PLAY) {
     for (let i = 0; i < enemies.length; i++) {
       const e = enemies[i];
       if (e.type === 'fuel') continue;
@@ -259,6 +282,8 @@ function updateBullets(dt) {
   for (let i = bullets.length - 1; i >= 0; i--) {
     const b = bullets[i];
     b.wy += 700 * dt;
+    if (b.vx) b.x += b.vx * dt;
+    if (b.x < 2 || b.x > W - 2) { bullets.splice(i, 1); continue; }
     const sy = PY + Game.worldY - b.wy;
     if (sy < HUD_TOP - 24) { bullets.splice(i, 1); continue; }
 
@@ -289,6 +314,9 @@ function updateBullets(dt) {
         addScore(base * mult, e.x, esy, mult > 3 ? '#ff9ae0' : '#ffe36a');
         explosionFx(e.x, esy, true, e.type === 'missile');
         bumpCombo(e.x, esy);
+        if (e.type === 'missile') { if (Math.random() < 0.65) spawnPowerup(e.x, e.wy); }
+        else if (e.type === 'jet') { if (Math.random() < 0.14) spawnPowerup(e.x, e.wy); }
+        else if (Math.random() < 0.07) spawnPowerup(e.x, e.wy);
         enemies.splice(j, 1);
         hit = true;
         sfx.boom();

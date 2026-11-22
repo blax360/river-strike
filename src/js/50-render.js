@@ -193,6 +193,31 @@ function drawEnemies() {
   }
 }
 
+function drawPowerups() {
+  const c = ctx;
+  for (const p of powerups) {
+    const sy = PY + Game.worldY - p.wy;
+    if (sy < PLAY_TOP - 40 || sy > H - HUD_BOT + 40) continue;
+    const def = PWTYPES[p.type];
+    const bob = Math.sin(Game.T * 4 + p.bob) * 2;
+    const fade = (p.t > p.life - 2.2 && Math.sin(Game.T * 20) > 0) ? 0.4 : 1;
+    c.save();
+    c.globalAlpha = fade;
+    c.translate(Math.round(p.x), Math.round(sy + bob));
+    c.shadowColor = def.col; c.shadowBlur = 14;
+    c.fillStyle = 'rgba(6,12,22,0.94)';
+    c.fillRect(-13, -13, 26, 26);
+    c.shadowBlur = 0;
+    c.strokeStyle = def.col; c.lineWidth = 2;
+    c.strokeRect(-13, -13, 26, 26);
+    c.fillStyle = def.col;
+    c.fillRect(-17, -1, 2, 3); c.fillRect(15, -1, 2, 3);
+    c.fillRect(-1, -17, 3, 2); c.fillRect(-1, 15, 3, 2);
+    pxText(c, def.label, 0, -5, 2, def.col, 6, 'center', def.col);
+    c.restore();
+  }
+}
+
 function drawBullets() {
   const c = ctx;
   for (const b of bullets) {
@@ -223,6 +248,24 @@ function drawPlayer() {
   blit(c, SPR.player, 0, -2);
   c.globalAlpha = 1;
   c.restore();
+
+  // campo de protección
+  if (pwActive('shield')) {
+    const k = Game.pw.shield / PWTYPES.shield.dur;
+    const r = 30 + Math.sin(Game.T * 9) * 2;
+    const a = 0.28 + 0.22 * Math.sin(Game.T * 11) + (1 - k) * 0.25;
+    c.strokeStyle = 'rgba(140,255,185,' + Math.min(0.85, a).toFixed(2) + ')';
+    c.lineWidth = 2;
+    c.beginPath(); c.arc(Game.px, PY, r, 0, TAU); c.stroke();
+    c.strokeStyle = 'rgba(190,255,215,' + (Math.min(0.5, a * 0.7)).toFixed(2) + ')';
+    c.lineWidth = 1;
+    c.beginPath(); c.arc(Game.px, PY, r + 5, 0, TAU); c.stroke();
+    for (let i = 0; i < 6; i++) {
+      const ang = Game.T * 1.6 + i * TAU / 6;
+      c.fillStyle = 'rgba(200,255,225,0.75)';
+      c.fillRect(Game.px + Math.cos(ang) * r - 1.5, PY + Math.sin(ang) * r - 1.5, 3, 3);
+    }
+  }
 
   // escudo de invulnerabilidad
   if (Game.invuln > 0) {
@@ -329,6 +372,28 @@ function drawHUD() {
     c.strokeStyle = 'rgba(255,60,40,' + a.toFixed(3) + ')';
     c.lineWidth = 10;
     c.strokeRect(5, PLAY_TOP + 3, W - 10, PLAY_H - 6);
+  }
+}
+
+function drawPowerHUD() {
+  const c = ctx;
+  const list = ['double', 'shield', 'x2'].filter(k => (Game.pw[k] || 0) > 0);
+  let y = HUD_TOP + 62;
+  for (const k of list) {
+    const def = PWTYPES[k];
+    const ratio = clamp(Game.pw[k] / def.dur, 0, 1);
+    const x = W - 116;
+    c.fillStyle = 'rgba(4,9,18,0.80)';
+    c.fillRect(x, y, 108, 20);
+    c.strokeStyle = rgba(def.col, 0.55); c.lineWidth = 1;
+    c.strokeRect(x + 0.5, y + 0.5, 107, 19);
+    c.fillStyle = rgba(def.col, 0.18);
+    c.fillRect(x + 2, y + 2, 16, 16);
+    pxText(c, def.label, x + 6, y + 5, 1, def.col);
+    pxText(c, def.name, x + 24, y + 5, 1, '#dbe9f7');
+    c.fillStyle = rgba(def.col, 0.9);
+    c.fillRect(x + 2, y + 17, Math.max(0, 104 * ratio), 2);
+    y += 24;
   }
 }
 
